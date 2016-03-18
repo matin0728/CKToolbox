@@ -114,36 +114,43 @@
 {
 
     return [CKCompositeComponent
-            newWithComponent:[CKStackLayoutComponent
-                              newWithView:{}
-                              size:{}
-                              style:{
-                                  .alignItems = CKStackLayoutAlignItemsStretch
+            newWithComponent:[CKInsetComponent
+                              newWithInsets:{
+                                  .top = 15,
+                                  .bottom = 15,
+                                  .left = 10,
+                                  .right = 10
                               }
-                              children:{
-                                  {
-                                      [CKLabelComponent
-                                       newWithLabelAttributes:{
-                                           .string = @"这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试",
-                                           .font = [UIFont systemFontOfSize:30]
-                                       }
-                                       viewAttributes:{}
-                                       size:{}]
+                              component:[CKStackLayoutComponent
+                                         newWithView:{}
+                                         size:{}
+                                         style:{
+                                             .alignItems = CKStackLayoutAlignItemsStretch
+                                         }
+                                         children:{
+                                             {
+                                                 [CKLabelComponent
+                                                  newWithLabelAttributes:{
+                                                      .string = @"这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试",
+                                                      .font = [UIFont systemFontOfSize:30]
+                                                  }
+                                                  viewAttributes:{}
+                                                  size:{}]
 
-                                  },
-                                  {
-                                      [CKLabelComponent
-                                       newWithLabelAttributes:{
-                                           .string = @"空间里面，文字介绍可以直接点击进入而不需要弹开一个新页面",
-                                           .font = [UIFont systemFontOfSize:26],
-                                           .color = [UIColor greenColor]
-                                       }
-                                       viewAttributes:{}
-                                       size:{}]
-
-                                  }
-
-                              }]];
+                                             },
+                                             {
+                                                 [CKLabelComponent
+                                                  newWithLabelAttributes:{
+                                                      .string = @"空间里面，文字介绍可以直接点击进入而不需要弹开一个新页面",
+                                                      .font = [UIFont systemFontOfSize:26],
+                                                      .color = [UIColor greenColor]
+                                                  }
+                                                  viewAttributes:{}
+                                                  size:{}]
+                                                 
+                                             }
+                                             
+                                         }]]];
   return [AnimalComponent newWithAnimal:model];
 }
 
