@@ -25,6 +25,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface AnimalInfoTableViewController : UITableViewController
+@interface AnimalInfoTableViewController : UICollectionViewController<UICollectionViewDelegate, UICollectionViewDelegateFlowLayout>
+
 @end
 

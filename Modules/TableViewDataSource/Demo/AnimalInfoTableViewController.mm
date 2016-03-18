@@ -1,5 +1,5 @@
 //
-//  AnimalInfoTableViewController.m
+//  AnimalInfoCollectionViewController.m
 //  CKToolbox
 //
 //  Created by Jonathan Crooke on 17/01/2016.
@@ -28,41 +28,50 @@
 #import "AnimalComponent.h"
 #import "AnimalCellConfiguration.h"
 #import <ComponentKit/ComponentKit.h>
-#import "CKTableViewTransactionalDataSource.h"
-#import "CKTableViewSupplementaryDataSource.h"
-#import "CKTableViewTransactionalDataSourceCellConfiguration.h"
+#import "CKCollectionViewTransactionalDataSource.h"
+//#import "CKCollectionViewSupplementaryDataSource.h"
+#import "CKTransactionalComponentDataSourceConfiguration.h"
 
-@interface AnimalInfoTableViewController () <CKComponentProvider, CKTableViewSupplementaryDataSource>
-@property (nonatomic, strong) CKTableViewTransactionalDataSource *dataSource;
+@interface AnimalInfoTableViewController () <CKComponentProvider, CKSupplementaryViewDataSource>
+
 @property (nonatomic, strong) NSMutableArray <AnimalInfo *> *animals;
+@property (nonatomic, strong) CKCollectionViewTransactionalDataSource *dataSource;
+
 @end
 
 @implementation AnimalInfoTableViewController
 
 - (void)viewDidLoad {
   [super viewDidLoad];
+    self.collectionView.backgroundColor = [UIColor lightGrayColor];
+    self.collectionView.delegate = self;
 
-  self.dataSource = [[CKTableViewTransactionalDataSource alloc]
-                     initWithTableView:self.tableView
-                     supplementaryDataSource:self
-                     configuration:self.configuration
-                     defaultCellConfiguration:[AnimalCellConfiguration new]];
+  self.dataSource = [[CKCollectionViewTransactionalDataSource alloc]
+                     initWithCollectionView:self.collectionView
+                     supplementaryViewDataSource:self
+                     configuration:self.configuration];
 
-  self.refreshControl = ^{
-    UIRefreshControl *control = [[UIRefreshControl alloc] init];
-    [control addTarget:self action:@selector(_loadAnimals) forControlEvents:UIControlEventValueChanged];
-    [self.tableView addSubview:control];
-    return control;
-  }();
+//  self.refreshControl = ^{
+//    UIRefreshControl *control = [[UIRefreshControl alloc] init];
+//    [control addTarget:self action:@selector(_loadAnimals) forControlEvents:UIControlEventValueChanged];
+//    [self.collectionView addSubview:control];
+//    return control;
+//  }();
 
   [self _loadAnimals];
 }
+
+//- (void)loadView {
+//    [super loadView];
+//    self.collectionView = [[UICollectionView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+//    self.collectionView.
+//}
 
 - (CKTransactionalComponentDataSourceConfiguration*)configuration
 {
   CKComponentFlexibleSizeRangeProvider *provider = [CKComponentFlexibleSizeRangeProvider providerWithFlexibility:
                                                     CKComponentSizeRangeFlexibleHeight];
-  CKSizeRange sizeRange = [provider sizeRangeForBoundingSize:self.tableView.bounds.size];
+  CKSizeRange sizeRange = [provider sizeRangeForBoundingSize:self.collectionView.bounds.size];
   return [[CKTransactionalComponentDataSourceConfiguration alloc]
           initWithComponentProvider:[self class]
           context:nil
@@ -93,9 +102,8 @@
 
     dispatch_async(dispatch_get_main_queue(), ^{
       [self.dataSource applyChangeset:builder.build
-                                 mode:CKUpdateModeAsynchronous
-                    cellConfiguration:nil];
-      [self.refreshControl endRefreshing];
+                                 mode:CKUpdateModeAsynchronous userInfo:nil];
+//      [self.refreshControl endRefreshing];
     });
   });
 }
@@ -104,55 +112,122 @@
 
 + (CKComponent *)componentForModel:(AnimalInfo *)model context:(id<NSObject>)context
 {
+
+    return [CKCompositeComponent
+            newWithComponent:[CKStackLayoutComponent
+                              newWithView:{}
+                              size:{}
+                              style:{
+                                  .alignItems = CKStackLayoutAlignItemsStretch
+                              }
+                              children:{
+                                  {
+                                      [CKLabelComponent
+                                       newWithLabelAttributes:{
+                                           .string = @"这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试",
+                                           .font = [UIFont systemFontOfSize:30]
+                                       }
+                                       viewAttributes:{}
+                                       size:{}]
+
+                                  },
+                                  {
+                                      [CKLabelComponent
+                                       newWithLabelAttributes:{
+                                           .string = @"空间里面，文字介绍可以直接点击进入而不需要弹开一个新页面",
+                                           .font = [UIFont systemFontOfSize:26],
+                                           .color = [UIColor greenColor]
+                                       }
+                                       viewAttributes:{}
+                                       size:{}]
+
+                                  }
+
+                              }]];
   return [AnimalComponent newWithAnimal:model];
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-  return [self.dataSource sizeForItemAtIndexPath:indexPath].height;
+//- (CGFloat)tableView:(UICollectionView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+//  return [self.dataSource sizeForItemAtIndexPath:indexPath].height;
+//}
+//
+//- (BOOL)tableView:(UICollectionView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+//	  return YES;
+//}
+
+//- (NSArray<UICollectionViewRowAction *> *)tableView:(UICollectionView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath
+//{
+//  UICollectionViewRowAction *delAction = [UICollectionViewRowAction rowActionWithStyle:UICollectionViewRowActionStyleDestructive
+//                                                                       title:NSLocalizedString(@"Delete", nil)
+//                                                                     handler:^(UICollectionViewRowAction * _Nonnull action,
+//                                                                               NSIndexPath * _Nonnull indexPath)
+//  {
+//    CKTransactionalComponentDataSourceChangesetBuilder *builder = [CKTransactionalComponentDataSourceChangesetBuilder new];
+//    [builder withRemovedItems:[NSSet setWithObject:indexPath]];
+//    [self.dataSource applyChangeset:builder.build mode:CKUpdateModeSynchronous userInfo:nil];
+//    [self.animals removeObjectAtIndex:indexPath.item];
+//  }];
+//
+//  UICollectionViewRowAction *moreInfo = [UICollectionViewRowAction rowActionWithStyle:UICollectionViewRowActionStyleNormal
+//                                                                      title:NSLocalizedString(@"More Info", nil)
+//                                                                    handler:^(UICollectionViewRowAction * _Nonnull action,
+//                                                                              NSIndexPath * _Nonnull indexPath)
+//  {
+//    AnimalInfo *info = self.animals[indexPath.item];
+//    [[UIApplication sharedApplication] openURL:info.URL];
+//  }];
+//
+//  return @[delAction, moreInfo];
+//}
+
+#pragma mark - UICollectionViewDelegateFlowLayout
+
+- (CGSize)collectionView:(UICollectionView *)collectionView
+                  layout:(UICollectionViewLayout *)collectionViewLayout
+  sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    return [self.dataSource sizeForItemAtIndexPath:indexPath];
 }
 
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-	  return YES;
+- (void)collectionView:(UICollectionView *)collectionView
+       willDisplayCell:(UICollectionViewCell *)cell
+    forItemAtIndexPath:(NSIndexPath *)indexPath {
+//    [self.dataSource announceWillAppearForItemInCell:cell];
 }
 
-- (NSArray<UITableViewRowAction *> *)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-  UITableViewRowAction *delAction = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDestructive
-                                                                       title:NSLocalizedString(@"Delete", nil)
-                                                                     handler:^(UITableViewRowAction * _Nonnull action,
-                                                                               NSIndexPath * _Nonnull indexPath)
-  {
-    CKTransactionalComponentDataSourceChangesetBuilder *builder = [CKTransactionalComponentDataSourceChangesetBuilder new];
-    [builder withRemovedItems:[NSSet setWithObject:indexPath]];
-    [self.dataSource applyChangeset:builder.build mode:CKUpdateModeSynchronous userInfo:nil];
-    [self.animals removeObjectAtIndex:indexPath.item];
-  }];
-
-  UITableViewRowAction *moreInfo = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleNormal
-                                                                      title:NSLocalizedString(@"More Info", nil)
-                                                                    handler:^(UITableViewRowAction * _Nonnull action,
-                                                                              NSIndexPath * _Nonnull indexPath)
-  {
-    AnimalInfo *info = self.animals[indexPath.item];
-    [[UIApplication sharedApplication] openURL:info.URL];
-  }];
-
-  return @[delAction, moreInfo];
+- (void)collectionView:(UICollectionView *)collectionView
+  didEndDisplayingCell:(UICollectionViewCell *)cell
+    forItemAtIndexPath:(NSIndexPath *)indexPath {
+//    [self.dataSource announceDidDisappearForItemInCell:cell];
 }
 
 #pragma mark Rotation
 
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    NSArray *indexPaths = self.collectionView.indexPathsForVisibleItems;
+    [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+        [self.dataSource updateConfiguration:self.configuration
+                                        mode:CKUpdateModeAsynchronous
+                                    userInfo:nil];
+    } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+        [self.collectionView scrollToItemAtIndexPath:indexPaths[indexPaths.count / 2]
+                              atScrollPosition:UICollectionViewScrollPositionCenteredVertically
+                                      animated:YES];
+    }];
+}
+
 - (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection
               withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
-  NSArray *indexPaths = self.tableView.indexPathsForVisibleRows;
+    [super willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
+  NSArray *indexPaths = self.collectionView.indexPathsForVisibleItems;
   [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
     [self.dataSource updateConfiguration:self.configuration
                                     mode:CKUpdateModeAsynchronous
                                 userInfo:nil];
   } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
-    [self.tableView scrollToRowAtIndexPath:indexPaths[indexPaths.count / 2]
-                          atScrollPosition:UITableViewScrollPositionMiddle
+    [self.collectionView scrollToItemAtIndexPath:indexPaths[indexPaths.count / 2]
+                          atScrollPosition:UICollectionViewScrollPositionCenteredVertically
                                   animated:YES];
   }];
 }
